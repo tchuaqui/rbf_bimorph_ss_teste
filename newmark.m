@@ -37,33 +37,33 @@ zm(i-1)=(z(i-1)+z(i))/2;
 end
 
 I0=zeros(ncamadas,1); I1=zeros(ncamadas,1); I2=zeros(ncamadas,1); J0=0; J1=0; J2=0;
-Au=0; Cu=0; Bw=0; Atheta=0; Btheta=0; C1theta=0; C2theta=0; Mu=0; Mtheta=0;
+B11=0; C11=0; B55=0; D11=0; 
 for i=1:ncamadas    
 I0(i)=z(i+1)-z(i);
 I1(i)=(z(i+1)^2-z(i)^2)/2;
 I2(i)=(z(i+1)^3-z(i)^3)/3;
 
-J0=J0-rho*I0(i);
-J1=J1-rho*I1(i);
-J2=J2-rho*I2(i);
+J0=J0+rho*I0(i);
+J1=J1+rho*I1(i);
+J2=J2+rho*I2(i);
 
-Au=Au+Q11(i)*I0(i);
-Cu=Cu+Q11(i)*I1(i);
-Bw=Bw+k*Q55(i)*I0(i);
-Atheta=Atheta+Q11(i)*I1(i);
-Btheta=Btheta-k*Q55(i)*I0(i);
-C1theta=C1theta+Q11(i)*I2(i);
-C2theta=C2theta-k*Q55(i)*I0(i);
-Mu=Mu+Q11(i)*I1(i);
-Mtheta=Mtheta+Q11(i)*I2(i);
+B11=B11+Q11(i)*I0(i); %Au
+C11=C11+Q11(i)*I1(i); %Cu
+B55=B55+k*Q55(i)*I0(i); %Bw
+% Atheta=Atheta+Q11(i)*I1(i);
+% Btheta=Btheta-k*Q55(i)*I0(i);
+D11=D11+Q11(i)*I2(i); %C1theta
+% C2theta=C2theta-k*Q55(i)*I0(i);
+% Mu=Mu+Q11(i)*I1(i);
+% Mtheta=Mtheta+Q11(i)*I2(i);
 end
 
-Du1=e31*I0(1)/esp(1);
-Du2=e31*I0(2)/esp(2);
-Dtheta1=e31*I1(1)/esp(1);
-Dtheta2=e31*I1(2)/esp(2);
-Dphi1=-ezz*I0(1)/(esp(1)^2);
-Dphi2=-ezz*I0(2)/(esp(2)^2);
+F1=e31*I0(1)/esp(1);  %Du1
+F2=e31*I0(2)/esp(2);  %Du2
+H1=e31*I1(1)/esp(1); %Dtheta1
+H2=e31*I1(2)/esp(2);  %Dtheta2
+I_1=ezz*I0(1)/(esp(1)^2); %-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Dphi1
+I_2=ezz*I0(2)/(esp(2)^2);  %-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Dphi2
 
 %%
 c=L./sqrt(numel(x)); 
@@ -79,52 +79,34 @@ D2AA=d2gdx2(c,xi,xj);
 
 
 digits(500)
-
-S_total(1:n,1:n)=Au*D2AA;
-S_total(1:n,n+1:2*n)=0;
-S_total(1:n,2*n+1:3*n)=Cu*D2AA;
-
-A_total(1:n,1:n)=J0*AA;
+                    
+S_total(1:n,1:n)=B55*D2AA;
+S_total(1:n,n+1:2*n)=B55*DAA;
+                    
+A_total(1:n,1:n)=-J0*AA;
 A_total(1:n,n+1:2*n)=0;
-A_total(1:n,2*n+1:3*n)=J1*AA;
 
-S_total(n+1:2*n,1:n)=0;                    
-S_total(n+1:2*n,n+1:2*n)=Bw*D2AA;
-S_total(n+1:2*n,2*n+1:3*n)=Bw*DAA;
+S_total(n+1:2*n,1:n)=-B55*DAA;
+S_total(n+1:2*n,n+1:2*n)=D11*D2AA-B55*AA;
 
-A_total(n+1:2*n,1:n)=0;                    
-A_total(n+1:2*n,n+1:2*n)=J0*AA;
-A_total(n+1:2*n,2*n+1:3*n)=0;
-
-S_total(2*n+1:3*n,1:n)=Atheta*D2AA;
-S_total(2*n+1:3*n,n+1:2*n)=Btheta*DAA;
-S_total(2*n+1:3*n,2*n+1:3*n)=C1theta*D2AA+C2theta*AA;
-
-A_total(2*n+1:3*n,1:n)=J1*AA;
-A_total(2*n+1:3*n,n+1:2*n)=0;
-A_total(2*n+1:3*n,2*n+1:3*n)=J2*AA;
-
-Kuphis(1:n,1:n)=Du1*DAA;
-Kuphia(1:n,1:n)=Du2*DAA;
-
-Ktphis(1:n,1:n)=Dtheta1*DAA;
-Ktphia(1:n,1:n)=Dtheta2*DAA;   
-
-Kphiphis(1:n,1:n)=Dphi1*AA;
-Kphiphia(1:n,1:n)=Dphi2*AA;
+A_total(n+1:2*n,1:n)=0;
+A_total(n+1:2*n,n+1:2*n)=-J2*AA;
 
 
-Kuu=S_total(1:n,1:n)-Kuphis*(Kphiphis^-1)*Kuphis;
-Kut=S_total(1:n,2*n+1:3*n)-Kuphis*(Kphiphis^-1)*Ktphis;
-Kww=S_total(n+1:2*n,n+1:2*n);
-Kwt=S_total(n+1:2*n,2*n+1:3*n);
-Ktu=S_total(2*n+1:3*n,1:n)-Ktphis*(Kphiphis^-1)*Kuphis;
-Ktw=S_total(2*n+1:3*n,n+1:2*n);
-Ktt=S_total(2*n+1:3*n,2*n+1:3*n)-Ktphis*(Kphiphis^-1)*Ktphis;
+Ktphis(1:n,1:n)=H1*DAA;
+Ktphia(1:n,1:n)=H2*DAA;   
 
-K_total(1:n,1:n)=Kuu; K_total(1:n,n+1:2*n)=0; K_total(1:n,2*n+1:3*n)=Kut;
-K_total(n+1:2*n,1:n)=0; K_total(n+1:2*n,n+1:2*n)=Kww; K_total(n+1:2*n,2*n+1:3*n)=Kwt;
-K_total(2*n+1:3*n,1:n)=Ktu; K_total(2*n+1:3*n,n+1:2*n)=Ktw; K_total(2*n+1:3*n,2*n+1:3*n)=Ktt;
+Kphiphis(1:n,1:n)=I_1*AA;
+Kphiphia(1:n,1:n)=I_2*AA;
+
+
+Kww=S_total(1:n,1:n);
+Kwt=S_total(1:n,n+1:2*n);
+Ktw=S_total(n+1:2*n,1:n);
+Ktt=S_total(n+1:2*n,n+1:2*n)+Ktphis*(Kphiphis^-1)*Ktphis;
+
+K_total(1:n,1:n)=Kww; K_total(1:n,n+1:2*n)=Kwt;
+K_total(n+1:2*n,1:n)=Ktw; K_total(n+1:2*n,n+1:2*n)=Ktt;
 
 
 %CONDICOES DE FRONTEIRA
@@ -135,14 +117,12 @@ switch cfstr
     
 %equacao de fronteira - CASO SIMPLESMENTE APOIADO
 b=find(x==0 | x==L );
-% S_total(b,:)=[Au*DAA(b,:),zeros(2,n),Cu*DAA(b,:)]; %PARA NX
-K_total(b,:)=[AA(b,:),zeros(2,n),zeros(2,n)];         %PARA U
-K_total(b+n,:)=[zeros(2,n),AA(b,:),zeros(2,n)];       %PARA W
-K_total(b+2*n,:)=[Mu*DAA(b,:),zeros(2,n),Mtheta*DAA(b,:)]; %PARA M
 
-A_total(b,:)=zeros(2,3*n);
-A_total(b+n,:)=zeros(2,3*n);
-A_total(b+2*n,:)=zeros(2,3*n);
+K_total(b,:)=[AA(b,:),zeros(2,n)];       %PARA W
+K_total(b+n,:)=[zeros(2,n),D11*DAA(b,:)]; %PARA M
+
+A_total(b,:)=zeros(2,2*n);
+A_total(b+n,:)=zeros(2,2*n);
 
     case {'cc'}        
 %equacao de fronteira - CASO ENCASTRADO
@@ -198,8 +178,8 @@ sol_exacta=(m*pi/L)^2*sqrt((E*I)/(rho*A))*sqrt(1-(((m*pi/L)^2*E*I)/(k*G*A+(m*pi/
 
 
 p=1;
-lambda_mode_w(1:n,p)=lambda_vec(n+1:2*n,p)'*AA;
-lambda_mode_phi_x(1:n,p)=lambda_vec(2*n+1:3*n,p)'*AA;
+lambda_mode_w(1:n,p)=lambda_vec(1:n,p)'*AA;
+lambda_mode_phi_x(1:n,p)=lambda_vec(n+1:2*n,p)'*AA;
 lambda_mode=[lambda_mode_w;lambda_mode_phi_x];
 
 
@@ -225,32 +205,28 @@ plot(x, lambda_mode_w(:,p));hold on;title(['Forma natural' num2str(p)]);legend([
 %-----NEWMARK
 
 %CONTROLADOR
-Gv=0.00001;
+Gv=0.001;
 
-Cuu=Kuphia*(Kphiphis^-1)*Kuphis;
-Cut=Kuphia*(Kphiphis^-1)*Ktphis;
-Ctu=Ktphia*(Kphiphis^-1)*Kuphis;
+
 Ctt=Ktphia*(Kphiphis^-1)*Ktphis;
 
-C_total=zeros(3*n,3*n);
-C_total(1:n,1:n)=Cuu;
-C_total(1:n,2*n+1:3*n)=Cut;
-C_total(2*n+1:3*n,1:n)=Ctu;
-C_total(2*n+1:3*n,2*n+1:3*n)=Ctt;
+C_total=zeros(2*n,2*n);
+
+C_total(n+1:2*n,n+1:2*n)=Ctt;
 C_total=-Gv*C_total;
 
 b=find(x==0 | x==L );
-C_total(b,:)=zeros(2,3*n);
-C_total(b+n,:)=zeros(2,3*n);
-C_total(b+2*n,:)=zeros(2,3*n);
+C_total(b,:)=zeros(2,2*n);
+C_total(b+n,:)=zeros(2,2*n);
+
 %
 
 %cond. iniciais 
-vetor_carga=zeros(3*n,1);
-vetor_carga(n+2:2*n-1)=carga;
+vetor_carga=zeros(2*n,1);
+vetor_carga(2:n-1)=carga;
 solucao_estatica=K_total\vetor_carga;
-x_0=solucao_estatica; v_0=zeros(3*n,1);
-vetor_f=zeros(3*n,1);
+x_0=solucao_estatica; v_0=zeros(2*n,1);
+vetor_f=zeros(2*n,1);
 a_0=pinv(A_total)*(vetor_f-C_total*v_0-K_total*x_0);
 delta=1/2; alpha=1/4;
 % delta_t=1/(freq*200);   %delta t
@@ -265,9 +241,9 @@ K_efe=K_total+a0*A_total+a1*C_total;
 t_final=0.02;
 n_t=int64(t_final/delta_t+1);
 t=zeros(n_t,1);
-x_t=zeros(3*n,n_t); x_t(:,1)=x_0;
-v_t=zeros(3*n,n_t); v_t(:,1)=v_0;
-a_t=zeros(3*n,n_t); a_t(:,1)=a_0;
+x_t=zeros(2*n,n_t); x_t(:,1)=x_0;
+v_t=zeros(2*n,n_t); v_t(:,1)=v_0;
+a_t=zeros(2*n,n_t); a_t(:,1)=a_0;
 for i=2:n_t
   t(i)=t(i-1)+delta_t;
   F_efe=A_total*(a0*x_t(:,i-1)+a2*v_t(:,i-1)+a3*a_t(:,i-1))+C_total*(a1*x_t(:,i-1)+a4*v_t(:,i-1)+a5*a_t(:,i-1));
@@ -280,7 +256,7 @@ end
 x_w=zeros(n,n_t);
 x_max=zeros(n_t,1);
 for i=1:n_t
-aux=x_t(n+1:2*n,i)'*AA;
+aux=x_t(1:n,i)'*AA;
 x_w(:,i)=aux';
 x_max(i)=x_w(ceil(n/2),i);
 end
