@@ -37,33 +37,33 @@ zm(i-1)=(z(i-1)+z(i))/2;
 end
 
 I0=zeros(ncamadas,1); I1=zeros(ncamadas,1); I2=zeros(ncamadas,1); J0=0; J1=0; J2=0;
-Au=0; Cu=0; Bw=0; Atheta=0; Btheta=0; C1theta=0; C2theta=0; Mu=0; Mtheta=0;
+B11=0; B55=0; C11=0; D11=0; 
 for i=1:ncamadas    
 I0(i)=z(i+1)-z(i);
 I1(i)=(z(i+1)^2-z(i)^2)/2;
 I2(i)=(z(i+1)^3-z(i)^3)/3;
 
-J0=J0-rho*I0(i);
-J1=J1-rho*I1(i);
-J2=J2-rho*I2(i);
+J0=J0+rho*I0(i);
+J1=J1+rho*I1(i);
+J2=J2+rho*I2(i);
 
-Au=Au+Q11(i)*I0(i);
-Cu=Cu+Q11(i)*I1(i);
-Bw=Bw+k*Q55(i)*I0(i);
-Atheta=Atheta+Q11(i)*I1(i);
-Btheta=Btheta-k*Q55(i)*I0(i);
-C1theta=C1theta+Q11(i)*I2(i);
-C2theta=C2theta-k*Q55(i)*I0(i);
-Mu=Mu+Q11(i)*I1(i);
-Mtheta=Mtheta+Q11(i)*I2(i);
+B11=B11+Q11(i)*I0(i);
+C11=C11+Q11(i)*I1(i);
+B55=B55+k*Q55(i)*I0(i);
+% Atheta=Atheta+Q11(i)*I1(i);
+% Btheta=Btheta-k*Q55(i)*I0(i);
+D11=D11+Q11(i)*I2(i);   %c1theta
+% C2theta=C2theta-k*Q55(i)*I0(i); 
+% Mu=Mu+Q11(i)*I1(i);
+% Mtheta=Mtheta+Q11(i)*I2(i);
 end
 
-Du1=e31*I0(1)/esp(1);
-Du2=e31*I0(2)/esp(2);
-Dtheta1=e31*I1(1)/esp(1);
-Dtheta2=e31*I1(2)/esp(2);
-Dphi1=-ezz*I0(1)/(esp(1)^2);
-Dphi2=-ezz*I0(2)/(esp(2)^2);
+F1=e31*I0(1)/esp(1);
+F2=e31*I0(2)/esp(2);
+H1=e31*I1(1)/esp(1);
+H2=e31*I1(2)/esp(2);
+I_1=ezz*I0(1)/(esp(1)^2);
+I_2=ezz*I0(2)/(esp(2)^2);
 
 %%
 c=L./sqrt(numel(x)); 
@@ -80,47 +80,47 @@ D2AA=d2gdx2(c,xi,xj);
 
 digits(500)
 
-S_total(1:n,1:n)=Au*D2AA;
+S_total(1:n,1:n)=B11*D2AA;
 S_total(1:n,n+1:2*n)=0;
-S_total(1:n,2*n+1:3*n)=Cu*D2AA;
+S_total(1:n,2*n+1:3*n)=C11*D2AA;
 
-A_total(1:n,1:n)=J0*AA;
+A_total(1:n,1:n)=-J0*AA;
 A_total(1:n,n+1:2*n)=0;
-A_total(1:n,2*n+1:3*n)=J1*AA;
+A_total(1:n,2*n+1:3*n)=-J1*AA;
 
 S_total(n+1:2*n,1:n)=0;                    
-S_total(n+1:2*n,n+1:2*n)=Bw*D2AA;
-S_total(n+1:2*n,2*n+1:3*n)=Bw*DAA;
+S_total(n+1:2*n,n+1:2*n)=B55*D2AA;
+S_total(n+1:2*n,2*n+1:3*n)=B55*DAA;
 
 A_total(n+1:2*n,1:n)=0;                    
-A_total(n+1:2*n,n+1:2*n)=J0*AA;
+A_total(n+1:2*n,n+1:2*n)=-J0*AA;
 A_total(n+1:2*n,2*n+1:3*n)=0;
 
-S_total(2*n+1:3*n,1:n)=Atheta*D2AA;
-S_total(2*n+1:3*n,n+1:2*n)=Btheta*DAA;
-S_total(2*n+1:3*n,2*n+1:3*n)=C1theta*D2AA+C2theta*AA;
+S_total(2*n+1:3*n,1:n)=C11*D2AA;
+S_total(2*n+1:3*n,n+1:2*n)=-B55*DAA;
+S_total(2*n+1:3*n,2*n+1:3*n)=D11*D2AA-B55*AA;
 
-A_total(2*n+1:3*n,1:n)=J1*AA;
+A_total(2*n+1:3*n,1:n)=-J1*AA;
 A_total(2*n+1:3*n,n+1:2*n)=0;
-A_total(2*n+1:3*n,2*n+1:3*n)=J2*AA;
+A_total(2*n+1:3*n,2*n+1:3*n)=-J2*AA;
 
-Kuphis(1:n,1:n)=Du1*DAA;
-Kuphia(1:n,1:n)=Du2*DAA;
+Kuphis(1:n,1:n)=F1*DAA;
+Kuphia(1:n,1:n)=F2*DAA;
 
-Ktphis(1:n,1:n)=Dtheta1*DAA;
-Ktphia(1:n,1:n)=Dtheta2*DAA;   
+Ktphis(1:n,1:n)=H1*DAA;
+Ktphia(1:n,1:n)=H2*DAA;   
 
-Kphiphis(1:n,1:n)=Dphi1*AA;
-Kphiphia(1:n,1:n)=Dphi2*AA;
+Kphiphis(1:n,1:n)=I_1*AA;
+Kphiphia(1:n,1:n)=I_2*AA;
 
 
-Kuu=S_total(1:n,1:n)-Kuphis*(Kphiphis^-1)*Kuphis;
-Kut=S_total(1:n,2*n+1:3*n)-Kuphis*(Kphiphis^-1)*Ktphis;
+Kuu=S_total(1:n,1:n)+Kuphis*(Kphiphis^-1)*Kuphis;
+Kut=S_total(1:n,2*n+1:3*n)+Kuphis*(Kphiphis^-1)*Ktphis;
 Kww=S_total(n+1:2*n,n+1:2*n);
 Kwt=S_total(n+1:2*n,2*n+1:3*n);
-Ktu=S_total(2*n+1:3*n,1:n)-Ktphis*(Kphiphis^-1)*Kuphis;
+Ktu=S_total(2*n+1:3*n,1:n)+Ktphis*(Kphiphis^-1)*Kuphis;
 Ktw=S_total(2*n+1:3*n,n+1:2*n);
-Ktt=S_total(2*n+1:3*n,2*n+1:3*n)-Ktphis*(Kphiphis^-1)*Ktphis;
+Ktt=S_total(2*n+1:3*n,2*n+1:3*n)+Ktphis*(Kphiphis^-1)*Ktphis;
 
 K_total(1:n,1:n)=Kuu; K_total(1:n,n+1:2*n)=0; K_total(1:n,2*n+1:3*n)=Kut;
 K_total(n+1:2*n,1:n)=0; K_total(n+1:2*n,n+1:2*n)=Kww; K_total(n+1:2*n,2*n+1:3*n)=Kwt;
@@ -138,7 +138,7 @@ b=find(x==0 | x==L );
 % S_total(b,:)=[Au*DAA(b,:),zeros(2,n),Cu*DAA(b,:)]; %PARA NX
 K_total(b,:)=[AA(b,:),zeros(2,n),zeros(2,n)];         %PARA U
 K_total(b+n,:)=[zeros(2,n),AA(b,:),zeros(2,n)];       %PARA W
-K_total(b+2*n,:)=[Mu*DAA(b,:),zeros(2,n),Mtheta*DAA(b,:)]; %PARA M
+K_total(b+2*n,:)=[C11*DAA(b,:),zeros(2,n),D11*DAA(b,:)]; %PARA M
 
 A_total(b,:)=zeros(2,3*n);
 A_total(b+n,:)=zeros(2,3*n);
@@ -225,7 +225,7 @@ plot(x, lambda_mode_w(:,p));hold on;title(['Forma natural' num2str(p)]);legend([
 %-----NEWMARK
 
 %CONTROLADOR
-Gv=0.00001;
+Gv=0;
 
 Cuu=Kuphia*(Kphiphis^-1)*Kuphis;
 Cut=Kuphia*(Kphiphis^-1)*Ktphis;
