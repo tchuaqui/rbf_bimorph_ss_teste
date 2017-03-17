@@ -225,7 +225,7 @@ plot(x, lambda_mode_w(:,p));hold on;title(['Forma natural' num2str(p)]);legend([
 %-----NEWMARK
 
 %CONTROLADOR
-Gv=0;
+Gv=0.000001;
 
 Cuu=Kuphia*(Kphiphis^-1)*Kuphis;
 Cut=Kuphia*(Kphiphis^-1)*Ktphis;
