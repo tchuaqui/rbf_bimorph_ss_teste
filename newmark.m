@@ -195,7 +195,6 @@ lambda_mode=[lambda_mode_w;lambda_mode_phi_x];
 % subplot(1,3,2);plot(x, lambda_mode_phi_x(:,p));hold on;
 % % title(['w(' num2str(m) ')_{exact} = ' num2str(sol_exacta_norm,'%6.4f')]);legend(['w(' num2str(m) ')=' num2str(lambda(m),'%6.4f')])
 freq=sqrt(lambda(p))/(2*pi);
-
 figure(1)
 plot(x,lambda_mode_w);
 %NOTA: ERRO CALCULADO ABAIXO CORRESPONDE AO ERRO RELATIVO COM OS RESULTADOS
@@ -261,9 +260,12 @@ x_w(:,i)=aux';
 x_max(i)=x_w(ceil(n/2),i);
 end
 
+Amp=max(x_max);
+temp_exata=-Amp*cos(2*pi*freq*t);
 figure(2)
 plot(t,x_max);
 hold on
+plot(t,temp_exata);
 
 X=fft(x_max);
 X_mag=abs(X(1:ceil(n_t/2)));
