@@ -225,7 +225,7 @@ plot(x, lambda_mode_w(:,p));hold on;title(['Forma natural' num2str(p)]);legend([
 %-----NEWMARK
 
 %CONTROLADOR
-Gv=0.000001;
+Gv=0.001;
 
 Cuu=Kuphia*(Kphiphis^-1)*Kuphis;
 Cut=Kuphia*(Kphiphis^-1)*Ktphis;
@@ -233,7 +233,7 @@ Ctu=Ktphia*(Kphiphis^-1)*Kuphis;
 Ctt=Ktphia*(Kphiphis^-1)*Ktphis;
 
 C_total=zeros(3*n,3*n);
-C_total(1:n,1:n)=Cuu;
+C_total(1:n,1:n)=-Cuu;   %estava positivo, com negativo funciona!!!!!!!!!!!!!!!!!
 C_total(1:n,2*n+1:3*n)=Cut;
 C_total(2*n+1:3*n,1:n)=Ctu;
 C_total(2*n+1:3*n,2*n+1:3*n)=Ctt;
